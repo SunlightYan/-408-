@@ -356,9 +356,9 @@ Status Del_Same(SqList *L)
 
 /* 第七道：将两个有序表合并
  * 操作过程：
- * 一、将第一个元素视为非重复的元素
- * 二、依次判断后面元素是否与其重复，若重复前移
- * 三、顺序表长度为i+1
+ * 一、判断两个有序表合并后长度是否大于顺序表允许长度
+ * 二、依次判断La和Lb的元素大小
+ * 三、最后将La或Lb未进入Lc中的放入Lc中，将Lc长度设置为k
  * 四、返回是否成功
  * */
 
@@ -383,7 +383,133 @@ Status Merge(SqList La, SqList Lb, SqList *Lc)
     return OK;
 }
 
+/* 第八道：交换两个顺序表内容
+ * 操作过程：
+ * 一、将第一个元素视为非重复的元素
+ * 二、依次判断后面元素是否与其重复，若重复前移
+ * 三、顺序表长度为i+1
+ * 四、返回是否成功
+ * */
 
+Status Reverse_Array(ElemType A[], int left, int right, int arraySize)
+{
+    int temp;
+    if(left > right || right >= arraySize)
+        return ERROR;
+    int mid = (left + right) / 2;
+    for(int i = 0; i <= mid - left; i++)
+    {
+        temp = A[left + i];
+        A[left + i] = A[right - i];
+        A[right - i] = temp;
+    }
+    return OK;
+}
+
+Status Exchange(ElemType A[], int m, int n, int arraySize)
+{
+    Reverse_Array(A,0,m+n-1,arraySize);
+    Reverse_Array(A,0,n-1,arraySize);
+    Reverse_Array(A,n,m+n-1,arraySize);
+
+    return OK;
+}
+
+Status Test_Exchange()
+{
+    int m = 5, n = 6;
+    ElemType A[m+n];
+    for(int i = 0; i < m+n; i++)
+    {
+        A[i] = i;
+    }
+    printf("输出逆序前的数组：");
+    for(int i = 0; i < m+n; i++)
+        printf("%d ", A[i]);
+    Exchange(A,m,n,m+n);
+    printf("输出逆序后的数组：");
+    for(int i = 0; i < m+n; i++)
+        printf("%d ", A[i]);
+    printf("\n");
+    return OK;
+}
+
+/* 第九道：在最少时间内找到值为X的元素，若找到则将其与后继元素交换位置，若找不到则将其插入表中使其依然递增
+ * 操作过程：
+ * 一、二分查找
+ * 二、找到就交换位置
+ * 三、未找到就插入元素
+ * 四、返回是否成功
+ * */
+
+Status SearchExchangeInsert(ElemType A[], ElemType x, int n)
+{
+    int i;
+    int left, right, mid;
+    int temp;
+    /* 二分查找 */
+    left = 0;
+    right = n-1;
+    while(left <= right)
+    {
+        mid = (left+right)/2;
+        if(x == A[mid])
+            break;
+        else if(x < A[mid])
+            right = mid-1;
+        else if(x > A[mid])
+            left = mid+1;
+    }
+    /* 如果找到x并且位置不在最后一个位置，就跟后继元素交换位置 */
+    if(A[mid] == x && mid != n-1)
+    {
+        temp = A[mid];
+        A[mid] = A[mid+1];
+        A[mid+1] = temp;
+    }
+    /* 如果没找到x，则将其插入right+1位置 */
+    if(left > right)
+    {
+        for(i = n-1; i > right; i--)
+        {
+            A[i+1] = A[i];
+        }
+
+        A[i+1] = x;
+    }
+    printf("插入后：");
+    for(i = n; i >= 0; i--)
+    {
+        printf("%d ",A[i]);
+    }
+    return OK;
+}
+
+Status Test_SearchExchangeInsert()
+{
+    ElemType A[7] = {1,3,5,7,9,10};
+    printf("输出逆序前的数组：");
+    for(int i = 0; i < 6; i++)
+        printf("%d ", A[i]);
+    SearchExchangeInsert(A,4,6);
+    printf("输出逆序后的数组：");
+    for(int i = 0; i <= 6; i++)
+        printf("%d ", A[i]);
+    printf("\n");
+    return OK;
+}
+
+/* 第十道：循环左移R位
+ * 操作过程：
+ * 一、二分查找
+ * 二、找到就交换位置
+ * 三、未找到就插入元素
+ * 四、返回是否成功
+ * */
+Status Reverse_Left(ElemType A[], int r, int arraySize)
+{
+
+}
 int main()
 {
 
@@ -499,6 +625,10 @@ int main()
     Del_Same(&L);
     printf("依次输出删除相同元素后的元素：");
     ListTraverse(L);
+
+    Test_Exchange();
+
+    Test_SearchExchangeInsert();
     return 0;
 }
 
