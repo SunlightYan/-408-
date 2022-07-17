@@ -9,6 +9,7 @@
 #include "stdlib.h"
 #include "math.h"
 #include "time.h"
+#include "string.h"
 
 #define OK 1
 #define ERROR 0
@@ -499,17 +500,301 @@ Status Test_SearchExchangeInsert()
     return OK;
 }
 
-/* 第十道：循环左移R位
+/* 第十道：循环左移R位  时间复杂度位O(n)，空间复杂度位O(1)
  * 操作过程：
- * 一、二分查找
- * 二、找到就交换位置
- * 三、未找到就插入元素
- * 四、返回是否成功
+ * 一、逆序函数
+ * 二、逆序前r位的位置，然后逆序剩余位置，最后把整体逆序
+ * 三、完成返回成功
  * */
+Status Reverse_1(ElemType A[], int left, int right)
+{
+    int temp;
+    int i = left, j = right;
+    int mid = (left + right) / 2;
+    for(int i = 0; i <= mid - left; i++)
+    {
+        temp = A[left+i];
+        A[left+i] = A[right-i];
+        A[right-i] = temp;
+    }
+    return OK;
+}
+
 Status Reverse_Left(ElemType A[], int r, int arraySize)
 {
+    Reverse_1(A, 0, r-1);
+    Reverse_1(A, r, arraySize-1);
+    Reverse_1(A, 0, arraySize-1);
 
+    return OK;
 }
+
+Status Test_Reverse_Left()
+{
+    int r = 4;
+    ElemType A[] = {1,2,3,4,5,6,7,8,9,10};
+    printf("左移%d位前: ", r);
+    for(int i = 0; i < 10; i++)
+        printf("%d ", A[i]);
+    int arraySize = sizeof (A) / sizeof (ElemType);
+    Reverse_Left(A,r,arraySize);
+    printf("左移%d位后: ", r);
+    for(int i = 0; i < 10; i++)
+        printf("%d ", A[i]);
+    printf("\n");
+    return OK;
+}
+
+/* 第十一道：中位数
+ * 操作过程：
+ * 一、判断A的中位数和B的中位数是否相等，若相等则直接返回该中位数
+ * 二、如果不相等，若A的中位数大于B的中位数，舍去B的中位数以下部分，舍去A比中位数大的部分
+ *              若A的中位数小于B的中位数，舍去B的中位数大的部分，舍去A比中位数小的部分
+ * 三、循环上述过程，直到A，B只有一个数字为止，返回A，B中相对小的那个就是中位数
+ * 四、返回成功
+ * */
+
+ElemType Mid_Array(ElemType A[], ElemType B[], int n)
+{
+    int A_start = 0, A_mid, A_end = n-1, B_start = 0, B_mid, B_end = n-1;
+    while((A_start != A_end) || (B_start != B_end))  //判断A，B是否只有一个元素
+    {
+        A_mid = (A_start + A_end) / 2;
+        B_mid = (B_start + B_end) / 2;
+        if(A[A_mid] == B[B_mid])   // 若A、B相等，则返回中位数
+            return A[A_mid];
+        if(A[A_mid] < B[B_mid])
+        {
+            if((A_start + A_end)%2 == 0)    // A的元素个数位奇数个
+            {
+                A_start = A_mid;
+                B_end = B_mid;
+            }
+            else
+            {
+                A_start = A_mid+1;
+                B_end = B_mid;
+            }
+
+        }
+        else
+        {
+            if((B_start + B_end)%2 == 0)
+            {
+                B_start = B_mid;
+                A_end = A_mid;
+            }
+            else
+            {
+                B_start = B_mid+1;
+                A_end = A_mid;
+            }
+
+        }
+    }
+
+    return A[A_start] > B[B_start] ? A[A_start] : B[B_start];
+}
+
+Status Test_Mid_Array()
+{
+    int mid;
+    ElemType A[] = {1,2,5,7,9,10};
+    ElemType B[] = {3,7,9,15,16,18};
+
+    mid = Mid_Array(A, B, 6);
+    printf("中位数是%d \n", mid);
+    return OK;
+}
+/* 第十二道：寻找主元素
+ * 操作过程：
+ * 一、快速排序算法
+ * 二、计算相同元素的间距
+ * 三、判断间距是否大于总元素个数的一半
+ * 四、返回成功
+ * */
+/* 第一种方法 排序间隔法 O(nlogn) O(1) */
+Status QuickSort_1(ElemType A[], int left, int right)
+{
+    int i,j,position;  // 定义左右游标和标志位
+    if(left > right)
+        return ERROR;
+    position = A[left]; // 将最左端的元素作为起始标志位
+    i = left;
+    j = right;
+    if(i < j)   // 当 i < j 时循环判断
+    {
+        while (i != j)
+        {
+            while ((A[j] >= position) && (i < j))j--;   // 判断最右端的元素将小于position的元素与左端的第一个大于position的元素交换
+            A[i] = A[j];
+            while ((A[i] <= position) && (i < j))i++;   // 同理交换左端大于position和右端小于position的元素
+            A[j] = A[i];
+        }
+
+        A[i] = position;  // 将position放置在中间
+        QuickSort_1(A,left,i-1); // 递归左端的数列
+        QuickSort_1(A,i+1,right); // 递归右端数列
+    }
+    return OK;
+}
+ElemType Find_Main_Num(ElemType A[],int n)
+{
+    int low = 0, high = 1, count = 0, main_num;
+    QuickSort_1(A,0,n);
+    while(high < n)
+    {
+        if(A[low] == A[high])
+        {
+            high++;
+            if(high - low > count)
+            {
+                count = high - low + 1;
+                main_num = A[low];
+            }
+        }
+        else
+        {
+            low = high;
+            high++;
+        }
+    }
+    if(count > n/2)
+        return main_num;
+    else
+        return -1;
+}
+/* 因为主元素大于一般所以count最后跟减去非主元素后依然大于0 O(n) O(1) */
+ElemType Find_Main_Num_2(ElemType A[], int n)
+{
+    int cur, count = 1;
+    cur = A[0];
+    for(int i = 0; i < n; i++)
+    {
+        if(A[i] == cur)
+            count++;
+        else
+        {
+            if(count > 0)
+                count--;
+            else
+            {
+                cur = A[i];
+                count = 1;
+            }
+        }
+    }
+    if(count > 0)
+    {
+        for(int i = count = 0; i < n; i++)
+        {
+            if(A[i] == cur)
+                count++;
+        }
+    }
+    if(count > n/2)
+        return cur;
+    else
+        return -1;
+}
+Status Test_Find_Main_Num()
+{
+    ElemType A[] = {1,2,5,5,5,5,5,5,5,7,7};
+    int n = sizeof (A) / sizeof (ElemType);
+    int main_num;
+    main_num = Find_Main_Num(A,n);
+    printf("第一种方法得到的主元素为 %d ", main_num);
+
+    main_num = Find_Main_Num_2(A,n);
+    printf("第二种方法得到的主元素为 %d \n", main_num);
+    return OK;
+}
+/* 第十三道：未出现二点最小正整数
+ * 操作过程：
+ * 一、创建一个标志数组辅助，用于标注出现的正整数
+ * 二、将值在0-n的元素在辅助数组中标志
+ * 三、循环查找第一个标志位为0的，然后返回值
+ * O(n)  O(n)
+ * */
+ElemType Find_Min_PositionNum(ElemType A[], int n)
+{
+    int i;
+    int *flag;
+    flag = (int *) malloc(sizeof (int) * n);
+    memset(flag, 0, sizeof (int) * n);
+
+    for(i = 0; i < n; i++)
+    {
+        if(A[i] > 0 && A[i] < n)
+            flag[A[i]-1] = 1;
+    }
+    for(i = 0; i < n; i++)
+    {
+        if(!flag[i])
+            break;
+    }
+    return i+1;
+}
+
+Status Test_Find_Min_PositionNum()
+{
+    int min;
+    int A[] = {-3,1,3,4,5,6,7,9};
+    int n = sizeof (A) / sizeof (int );
+    min = Find_Min_PositionNum(A, n);
+
+    printf("未出现的最小正整数为%d \n", min);
+    return OK;
+}
+
+/* 第十四道：三元组最小距离
+ * 操作过程：
+ * 一、计算距离，得到D，将其与最小的D比较如果小则替代
+ * 二、找到三元组中的最小值，更新这个最小值试图找到更小的距离，一直到
+ * 三、循环查找第一个标志位为0的，然后返回值
+ * O(n)  O(n)
+ * */
+ElemType abs_(ElemType a)
+{
+    return a<0 ? -a : a;
+}
+
+ElemType xls_min(ElemType a, ElemType b, ElemType c)
+{
+    if(a<b && a<c)
+        return OK;
+    return FALSE;
+}
+ElemType Find_Min_Three(ElemType A[],ElemType B[], ElemType C[],int al, int bl, int cl)
+{
+    int i = 0, j = 0, k = 0, D_Min = INT_MAX, D;
+    while(i<al && j<bl && k<cl && D_Min > 0)
+    {
+        D = abs(A[i]-B[j]) + abs(B[j] - C[k]) + abs_(C[k] - A[i]);
+        if(D < D_Min)
+            D_Min = D;
+        if(xls_min(A[i],B[j],C[k]))
+            i++;
+        else if(xls_min(B[j],A[i],C[k]))
+            j++;
+        else
+            k++;
+    }
+    return D_Min;
+}
+
+Status Test_Find_Min_Three()
+{
+    int a[] = {-1,0,9};
+    int b[] = {-25,-10,10,11};
+    int c[] = {2,9,17,30,41};
+    int min;
+    min = Find_Min_Three(a,b,c,3,4,5);
+    printf("三元组中最小值为%d \n", min);
+
+    return OK;
+}
+
 int main()
 {
 
@@ -629,6 +914,16 @@ int main()
     Test_Exchange();
 
     Test_SearchExchangeInsert();
+
+    Test_Reverse_Left();
+
+    Test_Mid_Array();
+
+    Test_Find_Main_Num();
+
+    Test_Find_Min_PositionNum();
+
+    Test_Find_Min_Three();
     return 0;
 }
 
