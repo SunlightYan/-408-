@@ -1,0 +1,15 @@
+# ninja log v5
+1	843	6800287701959334	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+855	1321	6800287706722740	ReversePolish.exe	56e82c02d079098b
+2	104	6800287961044201	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+105	225	6800287962230841	ReversePolish.exe	56e82c02d079098b
+1	103	6800296342964719	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+106	230	6800296344201407	ReversePolish.exe	56e82c02d079098b
+2	115	6800297573075870	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+116	280	6800297574691547	ReversePolish.exe	56e82c02d079098b
+2	106	6800298413765007	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+117	242	6800298415098267	ReversePolish.exe	56e82c02d079098b
+2	106	6800298846999064	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+107	234	6800298848245725	ReversePolish.exe	56e82c02d079098b
+2	107	6800300281338363	CMakeFiles/ReversePolish.dir/main.c.obj	c25a71833c3d8f68
+107	237	6800300282604977	ReversePolish.exe	56e82c02d079098b
